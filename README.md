@@ -56,17 +56,17 @@ Checkout http://www.slideshare.net/aoepeople/rock-solid-magento/55 (and the next
 
 ```
 .git*
-./htdocs/install.php
-./htdocs/includes
-./htdocs/downloader
-./htdocs/pkginfo
-./htdocs/LICENSE*
-./htdocs/RELEASE_NOTES.txt
-./htdocs/phpunit.xml*
-./htdocs/*.sample
-./htdocs/var
-./htdocs/media
-./tools/composer.phar
+./public_html/install.php
+./public_html/includes
+./public_html/downloader
+./public_html/pkginfo
+./public_html/LICENSE*
+./public_html/RELEASE_NOTES.txt
+./public_html/phpunit.xml*
+./public_html/*.sample
+./public_html/var
+./public_html/media
+./bin/composer.phar
 ./.modman/Aoe_TemplateHints
 ./.modman/EcomDev_PHPUnit
 ```
@@ -74,9 +74,9 @@ Checkout http://www.slideshare.net/aoepeople/rock-solid-magento/55 (and the next
 #### Expected project files/directories
 
 * composer.json
-* tools/composer.phar (This should be part of your project repo. Obviously this can't be pulled in via Composer. Chicken and egg, problem... :)
-* tools/modman (This is part of https://github.com/AOEpeople/magento-deployscripts which is being pulled in via composer)
-* htdocs/index.php
+* bin/composer.phar (This should be part of your project repo. Obviously this can't be pulled in via Composer. Chicken and egg, problem... :)
+* bin/modman (This is part of https://github.com/AOEpeople/magento-deployscripts which is being pulled in via composer)
+* public_html/index.php
 * .modman directory: The modules located here can be directly committed to the main project repository (e.g. if they're project specific) or they can be pulled in via Composer)
 * .modman/ProjectName_Base: There's no exclipict check for this base module to be present, but this is a recommendation. Add the basic project setup (local.xml, htaccess,...) to this base module.
 * .modman/.basedir
@@ -84,9 +84,9 @@ Checkout http://www.slideshare.net/aoepeople/rock-solid-magento/55 (and the next
 
 Additionally install.sh expects/checks these files:
 
-* tools/systemstorage_import.sh (This is part of https://github.com/AOEpeople/magento-deployscripts which is being pulled in via composer)
-* tools/apply (This is part of https://github.com/AOEpeople/EnvSettingsTool which is being pulled in via composer)
-* tools/n98-magerun.phar (This is part of https://github.com/AOEpeople/magento-deployscripts which is being pulled in via composer)
+* bin/systemstorage_import.sh (This is part of https://github.com/AOEpeople/magento-deployscripts which is being pulled in via composer)
+* bin/apply (This is part of https://github.com/AOEpeople/EnvSettingsTool which is being pulled in via composer)
+* bin/n98-magerun.phar (This is part of https://github.com/AOEpeople/magento-deployscripts which is being pulled in via composer)
 * Configuration/settings.csv (This is being used by EnvSettingsTool to apply all environment specific settings during the installation process)
 * Configuration/mastersystem.txt (Defines which system is the master system. E.g. "production". This is required to determine if the systemstorage backup needs to be imported during the installation process.)
 * Configuration/project.txt (project name. E.g. "acme")
@@ -140,7 +140,7 @@ These files and folders can easily be constructud by using following composer.js
 Following files will be stored inside the base package
 
 * build.txt
-* htdocs/version.txt (will be accessible from the web)
+* public_html/version.txt (will be accessible from the web)
 
 ### <a name="deploysh"></a>deploy.sh
 

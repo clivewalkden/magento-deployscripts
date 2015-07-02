@@ -30,31 +30,31 @@ if [ -z ${BUILD_NUMBER} ] ; then echo "ERROR: No build number given (-b)"; usage
 cd ${PROJECTROOTDIR} || { echo "Changing directory failed"; exit 1; }
 
 if [ ! -f 'composer.json' ] ; then echo "Could not find composer.json"; exit 1 ; fi
-if [ ! -f 'tools/composer.phar' ] ; then echo "Could not find composer.phar"; exit 1 ; fi
+if [ ! -f 'bin/composer.phar' ] ; then echo "Could not find composer.phar"; exit 1 ; fi
 
 # Run composer
-tools/composer.phar install --verbose --no-ansi --no-interaction --prefer-source || { echo "Composer failed"; exit 1; }
+bin/composer.phar install --verbose --no-ansi --no-interaction --prefer-source || { echo "Composer failed"; exit 1; }
 
 # Some basic checks
-if [ ! -f 'htdocs/index.php' ] ; then echo "Could not find htdocs/index.php"; exit 1 ; fi
-if [ ! -f 'tools/modman' ] ; then echo "Could not find modman script"; exit 1 ; fi
+if [ ! -f 'public_html/index.php' ] ; then echo "Could not find public_html/index.php"; exit 1 ; fi
+if [ ! -f 'bin/modman' ] ; then echo "Could not find modman script"; exit 1 ; fi
 if [ ! -d '.modman' ] ; then echo "Could not find .modman directory"; exit 1 ; fi
 if [ ! -f '.modman/.basedir' ] ; then echo "Could not find .modman/.basedir"; exit 1 ; fi
 
 # Run modman
 # This should be run during installation
-# tools/modman deploy-all --force
+# bin/modman deploy-all --force
 
 # Write file: build.txt
 echo "${BUILD_NUMBER}" > build.txt
 
 # Write file: version.txt
-echo "Build: ${BUILD_NUMBER}" > htdocs/version.txt
-echo "Build time: `date +%c`" >> htdocs/version.txt
-if [ ! -z ${GIT_REVISION} ] ; then echo "Revision: ${GIT_REVISION}" >> htdocs/version.txt ; fi
+echo "Build: ${BUILD_NUMBER}" > public_html/version.txt
+echo "Build time: `date +%c`" >> public_html/version.txt
+if [ ! -z ${GIT_REVISION} ] ; then echo "Revision: ${GIT_REVISION}" >> public_html/version.txt ; fi
 
 # Add maintenance.flag
-touch htdocs/maintenance.flag
+touch public_html/maintenance.flag
 
 # Create package
 if [ ! -d "artifacts/" ] ; then mkdir artifacts/ ; fi
@@ -67,8 +67,8 @@ fi
 BASEPACKAGE="artifacts/${FILENAME}"
 echo "Creating base package '${BASEPACKAGE}'"
 tar -vczf "${BASEPACKAGE}" \
-    --exclude=./htdocs/var \
-    --exclude=./htdocs/media \
+    --exclude=./public_html/var \
+    --exclude=./public_html/media \
     --exclude=./artifacts \
     --exclude=./tmp \
     --exclude-from="Configuration/tar_excludes.txt" . > tmp/base_files.txt || { echo "Creating archive failed"; exit 1; }
@@ -86,8 +86,8 @@ find . -type d -empty -delete
 EXTRAPACKAGE=${BASEPACKAGE/.tar.gz/.extra.tar.gz}
 echo "Creating extra package '${EXTRAPACKAGE}' with the remaining files"
 tar -czf "${EXTRAPACKAGE}" \
-    --exclude=./htdocs/var \
-    --exclude=./htdocs/media \
+    --exclude=./public_html/var \
+    --exclude=./public_html/media \
     --exclude=./artifacts \
     --exclude=./tmp .  || { echo "Creating archive failed"; exit 1; }
 

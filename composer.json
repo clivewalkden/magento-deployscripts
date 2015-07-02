@@ -1,16 +1,19 @@
 {
-    "name":"aoepeople/magento-deployscripts",
+    "name":"clivewalkden/magento-deployscripts",
     "description":"Collection of scripts for Magento builds and deployments",
     "minimum-stability":"dev",
     "authors":[
         {
             "name":"Fabrizio Branca"
+        },
+        {
+            "name": "Clive Walkden"
         }
     ],
     "bin": [
         "install.sh",
         "n98-magerun.phar",
-	"modman",
-	"systemstorage_import.sh"
+    	"modman",
+    	"systemstorage_import.sh"
     ]
 }
