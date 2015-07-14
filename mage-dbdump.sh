@@ -49,7 +49,9 @@ function error()
 
 function getParam()
 {
-  RETVAL=$(grep -Eoh "<$1>(<!\[CDATA\[)?(.*)(\]\]>)?<\/$1>" $TMP_FILE | sed "s#<$1><!\[CDATA\[##g;s#\]\]><\/$1>##g")
+  # Used if CDATA fields are still present
+  # RETVAL=$(grep -Eoh "<$1>(<!\[CDATA\[)*(.*)(\]\]>)*<\/$1>" $TMP_FILE | sed "s#<$1><!\[CDATA\[##g;s#\]\]><\/$1>##g")
+  RETVAL=$(grep -Eoh "<$1>(<!\[CDATA\[)*(.*)(\]\]>)*<\/$1>" $TMP_FILE | sed "s#<$1>##g;s#<\/$1>##g")
   if [[ "$2" == "sanitise" ]]; then
     RETVAL=$(echo "$RETVAL" | sed 's/"/\\\"/g')
   fi
@@ -73,8 +75,6 @@ function mysqldumpit()
       IGNORE_STRING="$IGNORE_STRING --ignore-table=$DBNAME.$TABLE_PREFIX$TABLE"
     done
   fi
-
-  echo "$IGNORE_STRING"
 
   # We use --single-transaction in favour of --lock-tables=false , its slower, but less potential for unreliable dumps
   echo "SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO';"
