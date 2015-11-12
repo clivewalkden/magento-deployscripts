@@ -32,6 +32,13 @@ cd ${PROJECTROOTDIR} || { echo "Changing directory failed"; exit 1; }
 if [ ! -f 'composer.json' ] ; then echo "Could not find composer.json"; exit 1 ; fi
 if [ ! -f 'bin/composer.phar' ] ; then echo "Could not find composer.phar"; exit 1 ; fi
 
+if type "hhvm" &> /dev/null; then
+    PHP_COMMAND=hhvm
+    echo "Using HHVM for composer..."
+else
+    PHP_COMMAND=php
+fi
+
 # Run composer
 bin/composer.phar install --verbose --no-ansi --no-interaction --prefer-source || { echo "Composer failed"; exit 1; }
 
@@ -40,6 +47,12 @@ if [ ! -f 'public_html/index.php' ] ; then echo "Could not find public_html/inde
 if [ ! -f 'bin/modman' ] ; then echo "Could not find modman script"; exit 1 ; fi
 if [ ! -d '.modman' ] ; then echo "Could not find .modman directory"; exit 1 ; fi
 if [ ! -f '.modman/.basedir' ] ; then echo "Could not find .modman/.basedir"; exit 1 ; fi
+
+if [ -d patches ] && [ -f vendor/aoepeople/magento-deployscripts/apply_patches.sh ] ; then
+    cd "${PROJECTROOTDIR}/public_html" || { echo "Changing directory failed"; exit 1; }
+    bash ../vendor/aoepeople/magento-deployscripts/apply_patches.sh || { echo "Error while applying patches"; exit 1; }
+    cd ${PROJECTROOTDIR} || { echo "Changing directory failed"; exit 1; }
+fi
 
 # Run modman
 # This should be run during installation
@@ -59,6 +72,8 @@ touch public_html/maintenance.flag
 # Create package
 if [ ! -d "artifacts/" ] ; then mkdir artifacts/ ; fi
 
+tmpfile=$(tempfile -p build_tar_base_files_)
+
 # Backwards compatibility in case tar_excludes.txt doesn't exist
 if [ ! -f "Configuration/tar_excludes.txt" ] ; then
     touch Configuration/tar_excludes.txt
@@ -71,17 +86,7 @@ tar -vczf "${BASEPACKAGE}" \
     --exclude=./public_html/media \
     --exclude=./artifacts \
     --exclude=./tmp \
-    --exclude-from="Configuration/tar_excludes.txt" . > tmp/base_files.txt || { echo "Creating archive failed"; exit 1; }
-
-echo "Deleting files that made it into the base package"
-while read -r line; do
-    if [ -e "$line" ] && ([ ! -d "$line" ] || ([ -d "$line" ] && [ ! "$(ls -A $line)" ])) ; then
-        rm -r "$line" || { echo "Deleting file/dir $line failed"; exit 1; }
-    fi
-done < "tmp/base_files.txt"
-
-echo "Cleaning up empty directories"
-find . -type d -empty -delete
+    --exclude-from="Configuration/tar_excludes.txt" . > $tmpfile || { echo "Creating archive failed"; exit 1; }
 
 EXTRAPACKAGE=${BASEPACKAGE/.tar.gz/.extra.tar.gz}
 echo "Creating extra package '${EXTRAPACKAGE}' with the remaining files"
@@ -89,7 +94,7 @@ tar -czf "${EXTRAPACKAGE}" \
     --exclude=./public_html/var \
     --exclude=./public_html/media \
     --exclude=./artifacts \
-    --exclude=./tmp .  || { echo "Creating archive failed"; exit 1; }
+    --exclude-from="$tmpfile" .  || { echo "Creating archive failed"; exit 1; }
 
 cd artifacts
 md5sum * > MD5SUMS
