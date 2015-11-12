@@ -123,7 +123,7 @@ EOT
 
 [ ! -f "$CONFIG_FILE" ] && error "$CONFIG_FILE does not exist"
 
-while getopts "B:AdrzehfFaic" OPTION; do
+while getopts "B:ASdrzehfFaic" OPTION; do
   case $OPTION in
     a)
       banner
